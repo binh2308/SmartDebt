@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Extract issue number from commit or PR
         id: extract
         run: |
@@ -41,11 +43,27 @@ jobs:
           esac
           echo "status=$STATUS" >> $GITHUB_OUTPUT
 
-      - name: Update issue status in project
+      - name: Update issue status in GitHub Project v2
         if: steps.extract.outputs.issue_number != ''
-        uses: titoportas/update-project-v2-item-status@v1
-        with:
-          github-token: ${{ secrets.PROJECT_TOKEN }}
-          project-url: https://github.com/orgs/Mobile-Dev-251/projects/1
-          status: ${{ steps.status.outputs.status }}
-          content-id: ${{ steps.extract.outputs.issue_number }}
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: |
+          # Lấy ID của issue
+          ISSUE_ID=$(gh api graphql -f query='
+            query($owner:String!, $repo:String!, $number:Int!) {
+              repository(owner:$owner, name:$repo) {
+                issue(number:$number) { id }
+              }
+            }' \
+            -f owner="Mobile-Dev-251" \
+            -f repo="SmartDebt" \
+            -f number=${{ steps.extract.outputs.issue_number }} \
+            --jq '.data.repository.issue.id')
+
+          echo "Found issue ID: $ISSUE_ID"
+
+          gh project item-edit \
+            --project "https://github.com/orgs/Mobile-Dev-251/projects/1" \
+            --id "$ISSUE_ID" \
+            --field "Status" \
+            --value "${{ steps.status.outputs.status }}"
