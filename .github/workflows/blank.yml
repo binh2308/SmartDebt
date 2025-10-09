@@ -1,0 +1,52 @@
+name: Scrum Project Automation
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+  issues:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  update_project_status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract issue number from commit or PR
+        id: extract
+        run: |
+          ISSUE_NUM=""
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            ISSUE_NUM=$(git log -1 --pretty=%B | grep -oE '#[0-9]+' | tr -d '#')
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ISSUE_NUM=$(echo "${{ github.event.pull_request.body }}" | grep -oE '#[0-9]+' | tr -d '#')
+          fi
+          echo "issue_number=$ISSUE_NUM" >> $GITHUB_OUTPUT
+
+      - name: Determine new status
+        id: status
+        run: |
+          STATUS=""
+          case "${{ github.event_name }}" in
+            push) STATUS="In-progress" ;;
+            pull_request)
+              if [[ "${{ github.event.action }}" == "closed" ]]; then
+                STATUS="Done"
+              else
+                STATUS="Review"
+              fi ;;
+            issues) STATUS="Done" ;;
+          esac
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Update issue status in project
+        if: steps.extract.outputs.issue_number != ''
+        uses: peter-evans/update-project@v2
+        with:
+          token: ${{ secrets.PROJECT_TOKEN }}
+          project-url: https://github.com/orgs/Mobile-Dev-251/projects/1
+          field: Status
+          field-value: ${{ steps.status.outputs.status }}
+          content-id: ${{ steps.extract.outputs.issue_number }}
