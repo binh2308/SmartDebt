@@ -43,10 +43,9 @@ jobs:
 
       - name: Update issue status in project
         if: steps.extract.outputs.issue_number != ''
-        uses: peter-evans/update-project@v2
+        uses: titoportas/update-project-v2-item-status@v1
         with:
-          token: ${{ secrets.PROJECT_TOKEN }}
+          github-token: ${{ secrets.PROJECT_TOKEN }}
           project-url: https://github.com/orgs/Mobile-Dev-251/projects/1
-          field: Status
-          field-value: ${{ steps.status.outputs.status }}
+          status: ${{ steps.status.outputs.status }}
           content-id: ${{ steps.extract.outputs.issue_number }}
