@@ -1,0 +1,69 @@
+name: Scrum Project Automation
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    types: [opened, reopened, ready_for_review, closed]
+  issues:
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  update_project_status:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract issue number from commit or PR
+        id: extract
+        run: |
+          ISSUE_NUM=""
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            ISSUE_NUM=$(git log -1 --pretty=%B | grep -oE '#[0-9]+' | tr -d '#')
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ISSUE_NUM=$(echo "${{ github.event.pull_request.body }}" | grep -oE '#[0-9]+' | tr -d '#')
+          fi
+          echo "issue_number=$ISSUE_NUM" >> $GITHUB_OUTPUT
+
+      - name: Determine new status
+        id: status
+        run: |
+          STATUS=""
+          case "${{ github.event_name }}" in
+            push) STATUS="In-progress" ;;
+            pull_request)
+              if [[ "${{ github.event.action }}" == "closed" ]]; then
+                STATUS="Done"
+              else
+                STATUS="Review"
+              fi ;;
+            issues) STATUS="Done" ;;
+          esac
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+      - name: Update issue status in GitHub Project v2
+        if: steps.extract.outputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: |
+          # Lấy ID của issue
+          ISSUE_ID=$(gh api graphql -f query='
+            query($owner:String!, $repo:String!, $number:Int!) {
+              repository(owner:$owner, name:$repo) {
+                issue(number:$number) { id }
+              }
+            }' \
+            -f owner="Mobile-Dev-251" \
+            -f repo="SmartDebt" \
+            -f number=${{ steps.extract.outputs.issue_number }} \
+            --jq '.data.repository.issue.id')
+
+          echo "Found issue ID: $ISSUE_ID"
+
+          gh project item-edit \
+            --project "https://github.com/orgs/Mobile-Dev-251/projects/1" \
+            --id "$ISSUE_ID" \
+            --field "Status" \
+            --value "${{ steps.status.outputs.status }}"
