@@ -1,5 +1,5 @@
 // app/auth/login.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -9,20 +9,21 @@ import {
   StyleSheet,
   StatusBar,
   ActivityIndicator,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import { scale, verticalScale } from '@/utils/stylings';
-import { colors, spacingX, spacingY, radius } from '@/constants/theme';
+} from "react-native";
+import { useRouter } from "expo-router";
+import { scale, verticalScale } from "@/utils/stylings";
+import { colors, spacingX, spacingY, radius } from "@/constants/theme";
+import { handleAuthLogin } from "../../service/authService";
 
 const LoginScreen = () => {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Vui lòng nhập đầy đủ thông tin');
+      alert("Vui lòng nhập đầy đủ thông tin");
       return;
     }
 
@@ -33,34 +34,45 @@ const LoginScreen = () => {
       // if (result.success) {
       //   router.replace('/(tabs)' as any);
       // }
-      
+      const userData = {
+        email: email,
+        password: password,
+      };
+      const response = await handleAuthLogin(userData);
+      if (!response) {
+        alert("No response");
+        return;
+      } else if (response.status !== 200) {
+        alert(response.message);
+        setLoading(false);
+        return;
+      }
       // Demo: delay 1.5s
       setTimeout(() => {
         setLoading(false);
-        router.replace('/(tabs)' as any);
+        router.replace("/(tabs)" as any);
       }, 1500);
     } catch (error) {
       setLoading(false);
-      alert('Đăng nhập thất bại');
+      alert("Đăng nhập thất bại");
     }
   };
 
   const handleForgotPassword = () => {
     // TODO: Điều hướng đến màn hình quên mật khẩu
-    console.log('Quên mật khẩu');
+    console.log("Quên mật khẩu");
   };
 
   const handleRegister = () => {
-    router.push('/auth/register' as any);
+    router.push("/auth/register" as any);
   };
 
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor={colors.Neutral300} />
-      
+
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.logo}>SMART DEBT</Text>
@@ -107,7 +119,7 @@ const LoginScreen = () => {
             </View>
 
             {/* Forgot password */}
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={handleForgotPassword}
               style={styles.forgotPasswordContainer}
               disabled={loading}
@@ -119,7 +131,10 @@ const LoginScreen = () => {
             <TouchableOpacity
               onPress={handleLogin}
               activeOpacity={0.8}
-              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              style={[
+                styles.loginButton,
+                loading && styles.loginButtonDisabled,
+              ]}
               disabled={loading}
             >
               {loading ? (
@@ -156,32 +171,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacingX._20,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: spacingY._40,
     marginBottom: spacingY._60,
   },
   logo: {
     fontSize: scale(40),
-    fontFamily: 'RowdiesBold',
-    fontWeight: '900',
+    fontFamily: "RowdiesBold",
+    fontWeight: "900",
     color: colors.primary300,
     letterSpacing: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   formSection: {
     gap: spacingY._20,
   },
   title: {
     fontSize: scale(15),
-    color: '#FFFFFF',
-    fontFamily: 'RobotoBold',
-    fontWeight: '700',
+    color: "#FFFFFF",
+    fontFamily: "RobotoBold",
+    fontWeight: "700",
     marginBottom: spacingY._10,
   },
   inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "transparent",
     borderWidth: 2,
     borderColor: colors.Neutral100,
     borderRadius: radius._30,
@@ -198,27 +213,27 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: scale(15),
-    fontFamily: 'RobotoRegular',
-    fontWeight: '400',
-    color: '#FFFFFF',
+    fontFamily: "RobotoRegular",
+    fontWeight: "400",
+    color: "#FFFFFF",
     paddingVertical: 0,
   },
   forgotPasswordContainer: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginTop: -spacingY._10,
   },
   forgotPasswordText: {
     fontSize: scale(14),
-    fontFamily: 'RobotoRegular',
-    fontWeight: '400',
+    fontFamily: "RobotoRegular",
+    fontWeight: "400",
     color: colors.Neutral100,
   },
   loginButton: {
     backgroundColor: colors.primary300,
     height: spacingY._60,
     borderRadius: radius._30,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     shadowColor: colors.primary300,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
@@ -230,28 +245,28 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   loginButtonText: {
-    color: '#FFFFFF',
-    fontFamily: 'RobotoBold',
+    color: "#FFFFFF",
+    fontFamily: "RobotoBold",
     fontSize: scale(17),
-    fontWeight: '700',
+    fontWeight: "700",
   },
   registerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: spacingY._10,
   },
   registerText: {
     fontSize: scale(14),
-    fontFamily: 'RobotoRegular',
-    fontWeight: '400',
+    fontFamily: "RobotoRegular",
+    fontWeight: "400",
     color: colors.Neutral100,
   },
   registerLink: {
     fontSize: scale(14),
-    fontFamily: 'RobotoRegular',
+    fontFamily: "RobotoRegular",
     color: colors.primary300,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   spacer: {
     flex: 1,
