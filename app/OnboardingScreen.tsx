@@ -27,7 +27,7 @@ const SmartDebtIntroScreen = () => {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://via.placeholder.com/375x812/0a0a0a/0a0a0a' }}
+      source={{ uri: "https://via.placeholder.com/375x812/0a0a0a/0a0a0a" }}
       style={styles.background}
       resizeMode="cover"
     >
@@ -36,7 +36,6 @@ const SmartDebtIntroScreen = () => {
 
       <SafeAreaView style={styles.container}>
         <View style={styles.content}>
-          
           {/* Header - Tiêu đề SMART DEBT */}
           <View style={styles.header}>
             <Text style={styles.title}>SMART DEBT</Text>
@@ -44,8 +43,8 @@ const SmartDebtIntroScreen = () => {
 
           {/* Main illustration - Hình 1.png đã có sẵn nhân vật và icon */}
           <View style={styles.illustrationContainer}>
-            <Image 
-              source={require('@/assets/images/1.png')} 
+            <Image
+              source={require("@/assets/images/1.png")}
               style={styles.mainIllustration}
               resizeMode="contain"
             />
@@ -66,6 +65,9 @@ const SmartDebtIntroScreen = () => {
             {/* Start button */}
             <TouchableOpacity
               onPress={handleStart}
+              // onPress={() => {
+              //   throw new Error("Fifth sentry error");
+              // }}
               activeOpacity={0.8}
               style={styles.startButton}
             >
