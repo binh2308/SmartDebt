@@ -35,6 +35,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT }}
+            -Dsonar.projectKey=${{ secrets.PROJECT_TOKEN }}
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
