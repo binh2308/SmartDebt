@@ -29,8 +29,3 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=mobiledev_smartdebt
-            -Dsonar.organization=mobile-dev-251
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
