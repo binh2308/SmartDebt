@@ -31,6 +31,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=Mobile-Dev-251_SmartDebt
+            -Dsonar.projectKey=mobiledev_smartdebt
             -Dsonar.organization=mobile-dev-251
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
