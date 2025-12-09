@@ -2,7 +2,7 @@ name: Scrum Project Automation
 
 on:
   push:
-    branches: ["main", "develop"]
+    branches: ["main", "develop", "testing"]
   pull_request:
     types: [opened, reopened, ready_for_review, closed]
   issues:
