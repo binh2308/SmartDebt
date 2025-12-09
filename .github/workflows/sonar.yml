@@ -2,29 +2,35 @@ name: SonarCloud Scan
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
+      - jtest
 
 jobs:
-  build:
+  sonarcloud:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm install
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: npm test -- --coverage
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Mobile-Dev-251_SmartDebt
+            -Dsonar.organization=mobile-dev-251
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
